@@ -102,11 +102,11 @@ public class GerritQueryHandler {
      * @param queryString the query.
      * @return the query result as a List of JSONObjects.
      * @throws GerritQueryException if Gerrit reports an error with the query.
-     * @throws SshException if there is an error in the SSH Connection.
-     * @throws IOException for some other IO problem.
+     * @throws com.sonyericsson.hudson.plugins.gerrit.gerritevents.ssh.SshException if there is an error in the SSH Connection.
+     * @throws java.io.IOException for some other IO problem.
      */
     public List<JSONObject> queryJava(String queryString) throws SshException, IOException, GerritQueryException {
-        return queryJava(queryString, true, true, false);
+        return queryJava(queryString, true, true, false, false);
     }
 
     //CS IGNORE RedundantThrows FOR NEXT 18 LINES. REASON: Informative.
@@ -121,16 +121,15 @@ public class GerritQueryHandler {
      *                          Meaning if --current-patch-set should be appended to the command call.
      * @return the query result as a List of JSONObjects.
      * @throws GerritQueryException if Gerrit reports an error with the query.
-     * @throws SshException if there is an error in the SSH Connection.
-     * @throws IOException for some other IO problem.
+     * @throws com.sonyericsson.hudson.plugins.gerrit.gerritevents.ssh.SshException if there is an error in the SSH Connection.
+     * @throws java.io.IOException for some other IO problem.
      */
     public List<JSONObject> queryJava(String queryString, boolean getPatchSets, boolean getCurrentPatchSet,
-                                      boolean getFiles) throws SshException, IOException, GerritQueryException {
+                                      boolean getFiles, boolean getComments) throws SshException, IOException, GerritQueryException {
 
         final List<JSONObject> list = new LinkedList<JSONObject>();
 
-        runQuery(queryString, getPatchSets, getCurrentPatchSet, getFiles, new LineVisitor() {
-
+        runQuery(queryString, getPatchSets, getCurrentPatchSet, getFiles, getComments, new LineVisitor() {
             @Override
             public void visit(String line) throws GerritQueryException {
                 JSONObject json = (JSONObject)JSONSerializer.toJSON(line.trim());
@@ -152,12 +151,12 @@ public class GerritQueryHandler {
      * @param queryString the query.
      * @return the query result as a List of JSONObjects.
      * @throws GerritQueryException if Gerrit reports an error with the query.
-     * @throws SshException if there is an error in the SSH Connection.
-     * @throws IOException for some other IO problem.
+     * @throws com.sonyericsson.hudson.plugins.gerrit.gerritevents.ssh.SshException if there is an error in the SSH Connection.
+     * @throws java.io.IOException for some other IO problem.
      */
     public List<JSONObject> queryFiles(String queryString) throws
             SshException, IOException, GerritQueryException {
-        return queryJava(queryString, false, true, true);
+        return queryJava(queryString, false, true, true, false);
     }
 
 
@@ -169,8 +168,8 @@ public class GerritQueryHandler {
      * This is the equivalent of calling queryJava(queryString, true, true).
      * @param queryString the query.
      * @return a List of JSON formatted strings.
-     * @throws SshException if there is an error in the SSH Connection.
-     * @throws IOException for some other IO problem.
+     * @throws com.sonyericsson.hudson.plugins.gerrit.gerritevents.ssh.SshException if there is an error in the SSH Connection.
+     * @throws java.io.IOException for some other IO problem.
      */
     public List<String> queryJson(String queryString) throws SshException, IOException {
         return queryJson(queryString, true, true, false);
@@ -188,14 +187,14 @@ public class GerritQueryHandler {
      * @param getFiles if the files of the patch sets should be included in the result.
      *                          Meaning if --files should be appended to the command call.
      * @return a List of JSON formatted strings.
-     * @throws SshException if there is an error in the SSH Connection.
-     * @throws IOException for some other IO problem.
+     * @throws com.sonyericsson.hudson.plugins.gerrit.gerritevents.ssh.SshException if there is an error in the SSH Connection.
+     * @throws java.io.IOException for some other IO problem.
      */
     public List<String> queryJson(String queryString, boolean getPatchSets, boolean getCurrentPatchSet, boolean getFiles)
             throws SshException, IOException {
         final List<String> list = new LinkedList<String>();
         try {
-            runQuery(queryString, getPatchSets, getCurrentPatchSet, getFiles, new LineVisitor() {
+            runQuery(queryString, getPatchSets, getCurrentPatchSet, getFiles, false, new LineVisitor() {
 
                 @Override
                 public void visit(String line) {
@@ -220,10 +219,10 @@ public class GerritQueryHandler {
      *                          Meaning if --current-patch-set should be appended to the command call.
      * @param visitor the visitor to handle each line in the result.
      * @throws GerritQueryException if a visitor finds that Gerrit reported an error with the query.
-     * @throws SshException if there is an error in the SSH Connection.
-     * @throws IOException for some other IO problem.
+     * @throws com.sonyericsson.hudson.plugins.gerrit.gerritevents.ssh.SshException if there is an error in the SSH Connection.
+     * @throws java.io.IOException for some other IO problem.
      */
-    private void runQuery(String queryString, boolean getPatchSets, boolean getCurrentPatchSet, boolean getFiles,
+    private void runQuery(String queryString, boolean getPatchSets, boolean getCurrentPatchSet, boolean getFiles, boolean getComments,
                           LineVisitor visitor) throws GerritQueryException, SshException, IOException {
         StringBuilder str = new StringBuilder(QUERY_COMMAND);
         str.append(" --format=JSON");
@@ -235,6 +234,9 @@ public class GerritQueryHandler {
         }
         if (getFiles) {
             str.append(" --files");
+        }
+        if (getComments) {
+            str.append(" --comments");
         }
         str.append(" \"").append(queryString.replace((CharSequence)"\"", (CharSequence)"\\\"")).append("\"");
 
@@ -258,7 +260,7 @@ public class GerritQueryHandler {
 
     /**
      * Internal visitor for handling a line of text.
-     * Used by {@link #runQuery(java.lang.String, boolean, boolean, boolean, LineVisitor)}.
+     * Used by {@link #runQuery(String, boolean, boolean, boolean, boolean, com.sonyericsson.hudson.plugins.gerrit.gerritevents.GerritQueryHandler.LineVisitor)}.
      */
     interface LineVisitor {
         /**
