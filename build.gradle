@@ -1,0 +1,21 @@
+ext.ullinkGradleScripts = 'https://raw.github.com/gluck/gradle-scripts/master'
+apply from: "${ext.ullinkGradleScripts}/task-rules.gradle"
+apply from: "${ext.ullinkGradleScripts}/functions.gradle"
+
+apply plugin: 'java'
+
+version = '1.1'
+
+dependencies {
+    compile localGroovy()
+    compile 'org.codehaus:yagll:1.0'
+    compile 'commons-io:commons-io:2.4'
+    compile 'org.eclipse.jgit:org.eclipse.jgit:3.0.0.201306101825-r'
+    compile 'sshtools:j2ssh-common:0.2.2'
+    compile 'sshtools:j2ssh-core:0.2.2'
+    compile 'com.jcraft:jsch:0.1.49'
+    compile 'org.slf4j:slf4j-api:1.6.1'
+    compile 'org.slf4j:slf4j-jdk14:1.6.1'
+    compile group: 'net.sf.json-lib', name: 'json-lib', version: '2.3', classifier: 'jdk15'
+}
+
