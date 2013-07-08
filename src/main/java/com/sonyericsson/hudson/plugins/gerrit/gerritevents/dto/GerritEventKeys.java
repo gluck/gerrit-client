@@ -45,7 +45,6 @@ public abstract class GerritEventKeys {
      * patchSet.
      */
     public static final String PATCH_SET = "patchSet";
-
     /**
      * email.
      */
@@ -82,7 +81,6 @@ public abstract class GerritEventKeys {
      * subject.
      */
     public static final String SUBJECT = "subject";
-
     /**
      * url.
      */
@@ -155,6 +153,13 @@ public abstract class GerritEventKeys {
      * version.
      */
     public static final String VERSION = "version";
+
+
+    public static final String BY = "by";
+    public static final String COMMENTS = "comments";
+    public static final String MESSAGE = "message";
+    public static final String REVIEWER = "reviewer";
+
 
     /**
      * Empty default constructor to hinder instantiation.

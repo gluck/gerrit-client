@@ -27,8 +27,7 @@ import static com.sonyericsson.hudson.plugins.gerrit.gerritevents.GerritJsonEven
 import com.sonyericsson.hudson.plugins.gerrit.gerritevents.dto.GerritJsonDTO;
 import net.sf.json.JSONObject;
 
-import static com.sonyericsson.hudson.plugins.gerrit.gerritevents.dto.GerritEventKeys.TYPE;
-import static com.sonyericsson.hudson.plugins.gerrit.gerritevents.dto.GerritEventKeys.VALUE;
+import static com.sonyericsson.hudson.plugins.gerrit.gerritevents.dto.GerritEventKeys.*;
 
 /**
  * Represents a Gerrit JSON Approval DTO.
@@ -45,6 +44,7 @@ public class Approval implements GerritJsonDTO {
      */
     private String value;
 
+    private Account by;
     /**
      * Default constructor.
      */
@@ -64,6 +64,9 @@ public class Approval implements GerritJsonDTO {
         if (json.containsKey(TYPE) && json.containsKey(VALUE)) {
             type = getString(json, TYPE);
             value = getString(json, VALUE);
+        }
+        if (json.containsKey(BY)) {
+            by = new Account(json.getJSONObject(BY));
         }
     }
 

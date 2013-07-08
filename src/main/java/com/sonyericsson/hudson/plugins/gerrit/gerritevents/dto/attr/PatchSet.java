@@ -24,13 +24,14 @@
 package com.sonyericsson.hudson.plugins.gerrit.gerritevents.dto.attr;
 
 import static com.sonyericsson.hudson.plugins.gerrit.gerritevents.GerritJsonEventFactory.getString;
+import static com.sonyericsson.hudson.plugins.gerrit.gerritevents.dto.GerritEventKeys.*;
+
 import com.sonyericsson.hudson.plugins.gerrit.gerritevents.dto.GerritJsonDTO;
+import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
-import static com.sonyericsson.hudson.plugins.gerrit.gerritevents.dto.GerritEventKeys.NUMBER;
-import static com.sonyericsson.hudson.plugins.gerrit.gerritevents.dto.GerritEventKeys.REVISION;
-import static com.sonyericsson.hudson.plugins.gerrit.gerritevents.dto.GerritEventKeys.REF;
-import static com.sonyericsson.hudson.plugins.gerrit.gerritevents.dto.GerritEventKeys.UPLOADER;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Represents a Gerrit JSON Patchset DTO.
@@ -55,6 +56,8 @@ public class PatchSet implements GerritJsonDTO {
      * The one who uploaded the patch-set.
      */
     private Account uploader;
+    private Account author;
+    private List<Approval> approvals = new ArrayList<Approval>();
 
     /**
      * Default constructor.
@@ -78,6 +81,15 @@ public class PatchSet implements GerritJsonDTO {
         if (json.containsKey(UPLOADER)) {
             uploader = new Account(json.getJSONObject(UPLOADER));
         }
+        if (json.containsKey(AUTHOR)) {
+            author = new Account(json.getJSONObject(AUTHOR));
+        }
+        if (json.containsKey(APPROVALS)) {
+            JSONArray eventApprovals = json.getJSONArray(APPROVALS);
+            for (int i = 0; i < eventApprovals.size(); i++) {
+                approvals.add(new Approval(eventApprovals.getJSONObject(i)));
+            }
+        }
     }
 
     /**
@@ -87,6 +99,11 @@ public class PatchSet implements GerritJsonDTO {
     public String getNumber() {
         return number;
     }
+
+    public List<Approval> getApprovals() {
+        return approvals;
+    }
+
 
     /**
      * The patchset number.
@@ -136,6 +153,10 @@ public class PatchSet implements GerritJsonDTO {
      */
     public Account getUploader() {
         return uploader;
+    }
+
+    public Account getAuthor() {
+        return author;
     }
 
     /**

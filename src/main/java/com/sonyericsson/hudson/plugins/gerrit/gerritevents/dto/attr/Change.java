@@ -25,15 +25,13 @@ package com.sonyericsson.hudson.plugins.gerrit.gerritevents.dto.attr;
 
 import com.sonyericsson.hudson.plugins.gerrit.gerritevents.dto.GerritJsonDTO;
 import static com.sonyericsson.hudson.plugins.gerrit.gerritevents.GerritJsonEventFactory.getString;
+import static com.sonyericsson.hudson.plugins.gerrit.gerritevents.dto.GerritEventKeys.*;
+
+import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
-import static com.sonyericsson.hudson.plugins.gerrit.gerritevents.dto.GerritEventKeys.PROJECT;
-import static com.sonyericsson.hudson.plugins.gerrit.gerritevents.dto.GerritEventKeys.BRANCH;
-import static com.sonyericsson.hudson.plugins.gerrit.gerritevents.dto.GerritEventKeys.ID;
-import static com.sonyericsson.hudson.plugins.gerrit.gerritevents.dto.GerritEventKeys.NUMBER;
-import static com.sonyericsson.hudson.plugins.gerrit.gerritevents.dto.GerritEventKeys.SUBJECT;
-import static com.sonyericsson.hudson.plugins.gerrit.gerritevents.dto.GerritEventKeys.OWNER;
-import static com.sonyericsson.hudson.plugins.gerrit.gerritevents.dto.GerritEventKeys.URL;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Represents a Gerrit JSON Change DTO.
@@ -71,6 +69,7 @@ public class Change implements GerritJsonDTO {
      */
     private String url;
 
+    private List<Comment> comments = new ArrayList<Comment>();
     /**
      * Default constructor.
      */
@@ -96,6 +95,12 @@ public class Change implements GerritJsonDTO {
         if (json.containsKey(OWNER)) {
             owner = new Account(json.getJSONObject(OWNER));
         }
+        if (json.containsKey(COMMENTS)) {
+            JSONArray eventApprovals = json.getJSONArray(COMMENTS);
+            for (int i = 0; i < eventApprovals.size(); i++) {
+                comments.add(new Comment(eventApprovals.getJSONObject(i)));
+            }
+        }
         url = getString(json, URL);
     }
 
@@ -113,6 +118,10 @@ public class Change implements GerritJsonDTO {
      */
     public void setBranch(String branch) {
         this.branch = branch;
+    }
+
+    public List<Comment> getComments() {
+        return comments;
     }
 
     /**
