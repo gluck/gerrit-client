@@ -4,6 +4,12 @@ apply from: "${ext.ullinkGradleScripts}/functions.gradle"
 
 apply plugin: 'java'
 
+repositories {
+    mavenLocal()
+    mavenCentral()
+}
+
+group = 'com.ullink.gerrit'
 version = '1.1'
 
 dependencies {
@@ -14,8 +20,15 @@ dependencies {
     compile 'sshtools:j2ssh-common:0.2.2'
     compile 'sshtools:j2ssh-core:0.2.2'
     compile 'com.jcraft:jsch:0.1.49'
-    compile 'org.slf4j:slf4j-api:1.6.1'
-    compile 'org.slf4j:slf4j-jdk14:1.6.1'
+    compile 'org.slf4j:slf4j-api:1.6.6'
+    compile 'org.slf4j:slf4j-jdk14:1.6.6'
     compile group: 'net.sf.json-lib', name: 'json-lib', version: '2.3', classifier: 'jdk15'
+    testCompile 'junit:junit:4.8.2'
+    testCompile 'org.mockito:mockito-all:1.8.4'
+    testCompile 'org.powermock.modules:powermock-module-junit4:1.4.5'
+    testCompile 'org.powermock.api:powermock-api-mockito:1.4.5'
+    testCompile 'org.hamcrest:hamcrest-core:1.2.1'
+    testCompile 'org.hamcrest:hamcrest-library:1.2.1'
+    testCompile 'org.apache.sshd:sshd-core:0.8.0'
 }
 
