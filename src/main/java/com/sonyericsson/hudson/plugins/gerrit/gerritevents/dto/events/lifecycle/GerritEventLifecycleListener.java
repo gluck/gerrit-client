@@ -25,8 +25,6 @@
 package com.sonyericsson.hudson.plugins.gerrit.gerritevents.dto.events.lifecycle;
 
 import com.sonyericsson.hudson.plugins.gerrit.gerritevents.dto.events.PatchsetCreated;
-import hudson.model.AbstractBuild;
-import hudson.model.AbstractProject;
 
 /**
  * Listener interface for listening in on a specific GerritEvent's lifecycle.
@@ -45,27 +43,6 @@ public interface GerritEventLifecycleListener {
      * @param event the event.
      */
     void triggerScanDone(PatchsetCreated event);
-
-    /**
-     * Called when the trigger of a project has decided to trigger on the event.
-     * @param event the event.
-     * @param project the project that was triggered.
-     */
-    void projectTriggered(PatchsetCreated event, AbstractProject project);
-
-    /**
-     * Called when a build has started.
-     * @param event the event.
-     * @param build the build.
-     */
-    void buildStarted(PatchsetCreated event, AbstractBuild build);
-
-    /**
-     * Called when a build is completed.
-     * @param event the event.
-     * @param build the build.
-     */
-    void buildCompleted(PatchsetCreated event, AbstractBuild build);
 
     /**
      * Called when all builds triggered by the event are completed.

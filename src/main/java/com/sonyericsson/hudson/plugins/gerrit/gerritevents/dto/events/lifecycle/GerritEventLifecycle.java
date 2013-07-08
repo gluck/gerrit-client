@@ -25,8 +25,6 @@
 package com.sonyericsson.hudson.plugins.gerrit.gerritevents.dto.events.lifecycle;
 
 import com.sonyericsson.hudson.plugins.gerrit.gerritevents.dto.events.PatchsetCreated;
-import hudson.model.AbstractBuild;
-import hudson.model.AbstractProject;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -55,7 +53,7 @@ public abstract class GerritEventLifecycle {
      * Removes the listener from the list of listeners.
      * @param listener the listener to remove.
      * @return true if it was removed.
-     * @see List#remove(java.lang.Object)
+     * @see java.util.List#remove(Object)
      */
     public synchronized boolean removeListener(GerritEventLifecycleListener listener) {
         if (listeners != null) {
@@ -85,45 +83,6 @@ public abstract class GerritEventLifecycle {
             @Override
             public void visit(GerritEventLifecycleListener listener, PatchsetCreated event) {
                 listener.triggerScanDone(event);
-            }
-        });
-    }
-
-    /**
-     * Fires the event {@link GerritEventLifecycleListener#projectTriggered(PatchsetCreated, AbstractProject)}.
-     * @param project the project that is triggered.
-     */
-    public synchronized void fireProjectTriggered(final AbstractProject project) {
-        fireEvent(new ListenerVisitor() {
-            @Override
-            public void visit(GerritEventLifecycleListener listener, PatchsetCreated event) {
-                listener.projectTriggered(event, project);
-            }
-        });
-    }
-
-    /**
-     * Fires the event {@link GerritEventLifecycleListener#buildStarted(PatchsetCreated, AbstractBuild)}.
-     * @param build the build that has started.
-     */
-    public synchronized void fireBuildStarted(final AbstractBuild build) {
-        fireEvent(new ListenerVisitor() {
-            @Override
-            public void visit(GerritEventLifecycleListener listener, PatchsetCreated event) {
-                listener.buildStarted(event, build);
-            }
-        });
-    }
-
-    /**
-     * Fires the event {@link GerritEventLifecycleListener#buildCompleted(PatchsetCreated, AbstractBuild)}.
-     * @param build the build that is completed.
-     */
-    public synchronized void fireBuildCompleted(final AbstractBuild build) {
-        fireEvent(new ListenerVisitor() {
-            @Override
-            public void visit(GerritEventLifecycleListener listener, PatchsetCreated event) {
-                listener.buildCompleted(event, build);
             }
         });
     }
