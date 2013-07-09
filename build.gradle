@@ -3,6 +3,7 @@ apply from: "${ext.ullinkGradleScripts}/task-rules.gradle"
 apply from: "${ext.ullinkGradleScripts}/functions.gradle"
 
 apply plugin: 'java'
+apply plugin: 'maven'
 
 repositories {
     mavenLocal()
@@ -13,12 +14,9 @@ repositories {
 }
 
 group = 'com.ullink.gerrit'
-version = '1.1'
+version = '1.1-SNAPSHOT'
 
 dependencies {
-    compile localGroovy()
-    compile 'org.codehaus:yagll:1.0'
-    compile 'commons-io:commons-io:2.4'
     compile 'org.eclipse.jgit:org.eclipse.jgit:3.0.0.201306101825-r'
     compile 'sshtools:j2ssh-common:0.2.2'
     compile 'sshtools:j2ssh-core:0.2.2'
