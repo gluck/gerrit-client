@@ -7,6 +7,9 @@ apply plugin: 'java'
 repositories {
     mavenLocal()
     mavenCentral()
+    maven {
+        url 'http://powermock.googlecode.com/svn/repo'
+    }
 }
 
 group = 'com.ullink.gerrit'
