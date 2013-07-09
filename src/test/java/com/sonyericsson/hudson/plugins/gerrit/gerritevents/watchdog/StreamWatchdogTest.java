@@ -30,6 +30,7 @@ import com.sonyericsson.hudson.plugins.gerrit.gerritevents.ssh.Authentication;
 import com.sonyericsson.hudson.plugins.gerrit.trigger.test.SshdServerMock;
 import org.apache.sshd.SshServer;
 import org.apache.sshd.server.Environment;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.File;
@@ -57,6 +58,7 @@ public class StreamWatchdogTest {
      * @throws InterruptedException if so.
      * @throws NoSuchMethodException if so.
      */
+    @Ignore
     @Test(timeout = 2 * 60 * 60 * 1000)
     public void testFullTimeoutFlow() throws IOException, InterruptedException, NoSuchMethodException {
         System.out.println("====This will be a long running test ca. 2 minutes=====");
