@@ -308,78 +308,81 @@ public class GerritHandler extends Thread implements Coordinator {
             //TODO what if nr of workers are increased/decreased in runtime.
             worker.start();
         }
-        do {
-            sshConnection = connect();
-            if (sshConnection == null) {
-                //should mean unrecoverable error
-                for (EventThread worker : workers) {
-                    worker.shutdown();
+        try {
+            do {
+                sshConnection = connect();
+                if (sshConnection == null) {
+                    //should mean unrecoverable error
+                    for (EventThread worker : workers) {
+                        worker.shutdown();
+                    }
+                    return;
                 }
-                return;
-            }
-            if (watchdogTimeoutSeconds > 0 && exceptionData != null) {
-                watchdog = new StreamWatchdog(this, watchdogTimeoutSeconds, exceptionData);
-            }
+                if (watchdogTimeoutSeconds > 0 && exceptionData != null) {
+                    watchdog = new StreamWatchdog(this, watchdogTimeoutSeconds, exceptionData);
+                }
 
-            BufferedReader br = null;
-            try {
-                logger.trace("Executing stream-events command.");
-                Reader reader = sshConnection.executeCommandReader(CMD_STREAM_EVENTS);
-                br = new BufferedReader(reader);
-                String line = "";
-                Provider provider = new Provider(
-                        GERRIT_NAME,
-                        gerritHostName,
-                        String.valueOf(gerritSshPort),
-                        GERRIT_PROTOCOL_NAME,
-                        DEFAULT_GERRIT_HOSTNAME,
-                        getGerritVersionString());
-                logger.info("Ready to receive data from Gerrit");
-                notifyConnectionEstablished();
-                do {
-                    logger.debug("Data-line from Gerrit: {}", line);
-                    if (line != null && line.length() > 0) {
+                BufferedReader br = null;
+                try {
+                    logger.trace("Executing stream-events command.");
+                    Reader reader = sshConnection.executeCommandReader(CMD_STREAM_EVENTS);
+                    br = new BufferedReader(reader);
+                    String line = "";
+                    Provider provider = new Provider(
+                            GERRIT_NAME,
+                            gerritHostName,
+                            String.valueOf(gerritSshPort),
+                            GERRIT_PROTOCOL_NAME,
+                            DEFAULT_GERRIT_HOSTNAME,
+                            getGerritVersionString());
+                    logger.info("Ready to receive data from Gerrit");
+                    notifyConnectionEstablished();
+                    do {
+                        logger.debug("Data-line from Gerrit: {}", line);
+                        if (line != null && line.length() > 0) {
+                            try {
+                                StreamEventsStringWork work = new StreamEventsStringWork(
+                                        line, provider);
+                                logger.trace("putting work on queue: {}", work);
+                                workQueue.put(work);
+                            } catch (InterruptedException ex) {
+                                logger.warn("Interrupted while putting work on queue!", ex);
+                                //TODO check if shutdown
+                                //TODO try again since it is important
+                            }
+                        }
+                        logger.trace("Reading next line.");
+                        line = br.readLine();
+                        if (watchdog != null) {
+                            watchdog.signal();
+                        }
+                    } while (line != null);
+                } catch (Exception ex) {
+                    logger.error("Stream events command error. ", ex);
+                } finally {
+                    logger.trace("Connection closed, ended read loop.");
+                    try {
+                        sshConnection.disconnect();
+                    } catch (Exception ex) {
+                        logger.warn("Error when disconnecting sshConnection.", ex);
+                    }
+                    sshConnection = null;
+                    notifyConnectionDown();
+                    if (br != null) {
                         try {
-                            StreamEventsStringWork work = new StreamEventsStringWork(
-                                    line, provider);
-                            logger.trace("putting work on queue: {}", work);
-                            workQueue.put(work);
-                        } catch (InterruptedException ex) {
-                            logger.warn("Interrupted while putting work on queue!", ex);
-                            //TODO check if shutdown
-                            //TODO try again since it is important
+                            br.close();
+                        } catch (IOException ex) {
+                            logger.warn("Could not close events reader.", ex);
                         }
                     }
-                    logger.trace("Reading next line.");
-                    line = br.readLine();
-                    if (watchdog != null) {
-                        watchdog.signal();
-                    }
-                } while (line != null);
-            } catch (IOException ex) {
-                logger.error("Stream events command error. ", ex);
-            } finally {
-                logger.trace("Connection closed, ended read loop.");
-                try {
-                    sshConnection.disconnect();
-                } catch (Exception ex) {
-                    logger.warn("Error when disconnecting sshConnection.", ex);
                 }
-                sshConnection = null;
-                notifyConnectionDown();
-                if (br != null) {
-                    try {
-                        br.close();
-                    } catch (IOException ex) {
-                        logger.warn("Could not close events reader.", ex);
-                    }
-                }
+            } while (!isShutdownInProgress());
+        } finally {
+            for (EventThread worker : workers) {
+                worker.shutdown();
             }
-        } while (!isShutdownInProgress());
-
-        for (EventThread worker : workers) {
-            worker.shutdown();
         }
+
         logger.debug("End of GerritHandler Thread.");
     }
 
