@@ -90,6 +90,10 @@ public abstract class GerritEventKeys {
      */
     public static final String REVISION = "revision";
     /**
+     * parents
+     */
+    public static final String PARENTS = "parents";
+    /**
      * ref.
      */
     public static final String REF = "ref";

@@ -24,12 +24,13 @@
 
 package com.sonyericsson.hudson.plugins.gerrit.gerritevents.dto.attr;
 
+import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.junit.Test;
-
 import static com.sonyericsson.hudson.plugins.gerrit.gerritevents.dto.GerritEventKeys.NUMBER;
 import static com.sonyericsson.hudson.plugins.gerrit.gerritevents.dto.GerritEventKeys.REF;
 import static com.sonyericsson.hudson.plugins.gerrit.gerritevents.dto.GerritEventKeys.REVISION;
+import static com.sonyericsson.hudson.plugins.gerrit.gerritevents.dto.GerritEventKeys.PARENTS;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -57,6 +58,7 @@ public class PatchSetTest {
         assertEquals("2", patchSet.getNumber());
         assertEquals("ad123456789", patchSet.getRevision());
         assertEquals("refs/changes/00/100/2", patchSet.getRef());
+        assertEquals(0, patchSet.getParents().size());
     }
 
     /**
@@ -69,12 +71,17 @@ public class PatchSetTest {
         JSONObject json = new JSONObject();
         json.put(NUMBER, "2");
         json.put(REVISION, "ad123456789");
+        JSONArray parents = new JSONArray();
+        parents.add("cae0ec04f2b80f9f542fbb78e2ea2885d2e6b769");
+        json.put(PARENTS, parents);
+
         PatchSet patchSet = new PatchSet();
         patchSet.fromJson(json);
 
         assertEquals("2", patchSet.getNumber());
         assertEquals("ad123456789", patchSet.getRevision());
         assertNull(patchSet.getRef());
+        assertEquals(1, patchSet.getParents().size());
     }
 
     /**
@@ -87,11 +94,16 @@ public class PatchSetTest {
         json.put(NUMBER, "2");
         json.put(REVISION, "ad123456789");
         json.put(REF, "refs/changes/00/100/2");
+        JSONArray parents = new JSONArray();
+        parents.add("cae0ec04f2b80f9f542fbb78e2ea2885d2e6b769");
+        parents.add("3e5d3e1126ebcf8b2cb4d242e896f7fa87ee7cfa");
+        json.put(PARENTS, parents);
         PatchSet patchSet = new PatchSet(json);
 
         assertEquals("2", patchSet.getNumber());
         assertEquals("ad123456789", patchSet.getRevision());
         assertEquals("refs/changes/00/100/2", patchSet.getRef());
+        assertEquals(2, patchSet.getParents().size());
     }
 
     /**

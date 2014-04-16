@@ -58,6 +58,7 @@ public class PatchSet implements GerritJsonDTO {
     private Account uploader;
     private Account author;
     private List<Approval> approvals = new ArrayList<Approval>();
+    private List<String> parents = new ArrayList<String>();
 
     /**
      * Default constructor.
@@ -90,8 +91,21 @@ public class PatchSet implements GerritJsonDTO {
                 approvals.add(new Approval(eventApprovals.getJSONObject(i)));
             }
         }
+        if (json.containsKey(PARENTS)) {
+            JSONArray eventParents = json.getJSONArray(PARENTS);
+            for (int i = 0; i < eventParents.size(); i++) {
+                parents.add(eventParents.getString(i));
+            }
+        }
     }
 
+    /**
+     * @return the List of parent dependency Hash
+     */
+    public List<String> getParents() {
+        return parents;
+    }
+    
     /**
      * The patchset number.
      * @return the number.
